@@ -1,0 +1,52 @@
+namespace :load do
+  task :defaults do
+    set :bundle_flags, "#{fetch(:bundle_flags)} --local"
+  end
+end
+
+namespace :git_copy do
+  namespace :bundle do
+    task :upload do
+      remote_cache_path = File.join(shared_path, 'bundle', 'cache')
+      local_cache_path  = File.join(git_copy_utility.tmp_path, 'bundle_cache')
+      local_vendor_path = File.join(git_copy_utility.repo_path, 'vendor')
+      local_gems = []
+
+      gemfile_md5 = Digest::MD5.file("#{git_copy_utility.repo_path}/Gemfile.lock") rescue nil
+      gemfile_changed = gemfile_md5 != File.read("#{git_copy_utility.tmp_path}/Gemfile.lock.md5") rescue true
+
+      run_locally do
+        execute(:mkdir, '-p', local_cache_path) unless test("[ -d #{local_cache_path} ]")
+        execute(:mkdir, '-p', local_vendor_path) unless test("[ -d #{local_vendor_path} ]")
+        execute(:ln, '-s', local_cache_path, File.join(git_copy_utility.repo_path, 'vendor', 'cache'))
+
+        if gemfile_changed
+          Bundler.with_clean_env do
+            execute("bundle package --gemfile #{git_copy_utility.repo_path}/Gemfile --all --all-platforms")
+          end
+
+          File.open("#{git_copy_utility.tmp_path}/Gemfile.lock.md5", 'w') { |f| f.write(gemfile_md5) }
+        end
+
+        local_gems = capture(:ls, local_cache_path).split(/\s+/)
+      end
+
+      on release_roles :all do
+        vendor_path = File.join(release_path, 'vendor')
+
+        execute(:mkdir, '-p', remote_cache_path) unless test("[ -d #{remote_cache_path} ]")
+        execute(:mkdir, '-p', vendor_path) unless test("[ -d #{vendor_path} ]")
+        execute(:ln, '-s', remote_cache_path, File.join(release_path, 'vendor', 'cache'))
+
+        remote_gems = capture(:ls, remote_cache_path).split(/\s+/)
+
+        (local_gems - remote_gems).each do |file|
+          upload!(File.join(local_cache_path, file), File.join(remote_cache_path, file), recursive: true)
+        end
+      end
+    end
+  end
+end
+
+
+before 'bundler:install', 'git_copy:bundle:upload'
