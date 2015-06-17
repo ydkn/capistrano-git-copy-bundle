@@ -18,6 +18,16 @@ And require it in your `Capfile`:
 require 'capistrano/git/copy/bundle'
 ```
 
+## Usage
+
+Packaging and uploading will happen automatically.
+
+If you are required to package your gems before the actual deploy (e.g. using a VPN without internet access) it is possible to run the following task to prefetch the gems so it won't run on deploy:
+
+```
+$ cap production git_copy:bundle:cache
+```
+
 ## Known issues
 
 * Currently it is not possible to package all platform versions of a gem (https://github.com/bundler/bundler-features/issues/4). However, gems can be added manually to `<shared_path>/bundle/cache`.
