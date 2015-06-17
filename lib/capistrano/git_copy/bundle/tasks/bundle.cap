@@ -1,6 +1,6 @@
 namespace :load do
   task :defaults do
-    set :bundle_flags, "#{fetch(:bundle_flags)} --local"
+    set :bundle_flags, -> { "#{fetch(:bundle_flags)} --local" }
   end
 end
 
