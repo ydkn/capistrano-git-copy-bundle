@@ -28,6 +28,12 @@ If you are required to package your gems before the actual deploy (e.g. using a 
 $ cap production git_copy:bundle:cache
 ```
 
+If you want to clear the local and remote gem cache you can run:
+
+```
+$ cap production git_copy:bundle:clear
+```
+
 ## Known issues
 
 * Currently it is not possible to package all platform versions of a gem (https://github.com/bundler/bundler-features/issues/4). However, gems can be added manually to `<shared_path>/bundle/cache`.
