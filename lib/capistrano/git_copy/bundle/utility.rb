@@ -14,7 +14,7 @@ module Capistrano
           execute(:mkdir, '-p', local_cache_path)  unless test!("[ -d #{local_cache_path} ]")
           execute(:mkdir, '-p', local_vendor_path) unless test!("[ -d #{local_vendor_path} ]")
 
-          execute(:ln, '-s', local_cache_path, File.join(repo_path, 'vendor', 'cache'))
+          execute(:ln, '-s', local_cache_path, File.join(local_vendor_path, 'cache'))
 
           if gems_changed?
             Bundler.with_clean_env do
@@ -34,13 +34,28 @@ module Capistrano
           execute(:mkdir, '-p', remote_cache_path) unless test!("[ -d #{remote_cache_path} ]")
           execute(:mkdir, '-p', vendor_path)       unless test!("[ -d #{vendor_path} ]")
 
-          execute(:ln, '-s', remote_cache_path, File.join(release_path, 'vendor', 'cache'))
+          execute(:ln, '-s', remote_cache_path, File.join(vendor_path, 'cache'))
 
           remote_gems = capture(:ls, remote_cache_path).split(/\s+/)
 
           (local_gems - remote_gems).each do |file|
             upload!(File.join(local_cache_path, file), File.join(remote_cache_path, file), recursive: true)
           end
+        end
+
+        # Clear local cached gems
+        #
+        # @return void
+        def clear_local
+          execute(:rm, '-rf', File.join(local_cache_path, '*')) if test!("[ -d #{local_cache_path} ]")
+          File.unlink(cached_gemfile_md5_path)
+        end
+
+        # Clear remote cached gems
+        #
+        # @return void
+        def clear_remote
+          execute(:rm, '-rf', File.join(remote_cache_path, '*')) if test!("[ -d #{remote_cache_path} ]")
         end
 
         # Path for remote bundle cache

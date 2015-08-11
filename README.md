@@ -15,7 +15,7 @@ end
 And require it in your `Capfile`:
 
 ```ruby
-require 'capistrano/git/copy/bundle'
+require 'capistrano/git_copy/bundle'
 ```
 
 ## Usage

@@ -21,6 +21,17 @@ namespace :git_copy do
         git_copy_bundle_utility.cache
       end
     end
+
+    desc 'Clear bundle cache'
+    task :clear do
+      run_locally do
+        git_copy_bundle_utility.clear_local
+      end
+
+      on release_roles :all do
+        git_copy_bundle_utility.clear_remote
+      end
+    end
   end
 end
 
