@@ -1,3 +1,10 @@
+[![Gem Version](https://img.shields.io/gem/v/capistrano-git-copy-bundle.svg)](https://rubygems.org/gems/capistrano-git-copy-bundle)
+[![Dependencies](https://img.shields.io/gemnasium/ydkn/capistrano-git-copy-bundle.svg)](https://gemnasium.com/ydkn/capistrano-git-copy-bundle)
+[![Code Climate](https://img.shields.io/codeclimate/github/ydkn/capistrano-git-copy-bundle.svg)](https://codeclimate.com/github/ydkn/capistrano-git-copy-bundle)
+
+[![Join the chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ydkn/capistrano-git-copy-bundle)
+
+
 # Capistrano::GitCopy::Bundle
 
 Packages gems locally and uploads them to the remote server instead of fetching them on the remote server.

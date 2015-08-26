@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased (initial release)
+## 0.1.0 (2015-08-26)
 ### Changes
   - Package gems
   - Check for changes to prevent uploading of all gems on every deploy
