@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.2.0 (2017-04-08)
+### Changes
+  - Removed dependency of _capistrano-git-copy_
+
 ## 0.1.0 (2015-08-26)
 ### Changes
   - Package gems

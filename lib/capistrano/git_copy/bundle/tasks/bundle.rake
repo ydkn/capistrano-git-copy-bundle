@@ -1,3 +1,7 @@
+def git_copy_bundle_utility
+  @_git_copy_bundle_utility ||= Capistrano::GitCopy::Bundle::Utility.new(self)
+end
+
 namespace :load do
   task :defaults do
     set :bundle_flags, "#{fetch(:bundle_flags)} --local"
@@ -6,17 +10,14 @@ end
 
 namespace :git_copy do
   namespace :bundle do
-    def git_copy_bundle_utility
-      @git_copy_bundle_utility ||= Capistrano::GitCopy::Bundle::Utility.new(self)
-    end
-
     task upload: :'git_copy:bundle:cache' do
       on release_roles :all do
         git_copy_bundle_utility.upload
       end
     end
 
-    task cache: :'git_copy:update' do
+    desc 'Cache bundled gems'
+    task :cache do
       run_locally do
         git_copy_bundle_utility.cache
       end

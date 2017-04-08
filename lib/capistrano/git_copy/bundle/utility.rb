@@ -1,24 +1,24 @@
-require 'capistrano/git_copy/utility'
+require 'fileutils'
+require 'digest/md5'
 
 module Capistrano
   module GitCopy
     module Bundle
-      # Utility stuff to avoid cluttering of bundle.cap
-      class Utility < ::Capistrano::GitCopy::Utility
+      # Utility stuff to avoid cluttering of bundle.rake
+      class Utility
+        def initialize(context)
+          @context = context
+        end
+
         # Cache used gems
         #
         # @return void
         def cache
-          local_vendor_path = File.join(repo_path, 'vendor')
-
           execute(:mkdir, '-p', local_cache_path)  unless test!("[ -d #{local_cache_path} ]")
-          execute(:mkdir, '-p', local_vendor_path) unless test!("[ -d #{local_vendor_path} ]")
-
-          execute(:ln, '-s', local_cache_path, File.join(local_vendor_path, 'cache'))
 
           if gems_changed?
             Bundler.with_clean_env do
-              execute("bundle package --gemfile #{File.join(repo_path, 'Gemfile')} --all --all-platforms")
+              execute("bundle package --gemfile #{File.join(Dir.pwd, 'Gemfile')} --all --all-platforms")
             end
 
             File.open(cached_gemfile_md5_path, 'w') { |f| f.write(gemfile_md5) } unless gemfile_md5.nil?
@@ -48,6 +48,7 @@ module Capistrano
         # @return void
         def clear_local
           execute(:rm, '-rf', File.join(local_cache_path, '*')) if test!("[ -d #{local_cache_path} ]")
+
           File.unlink(cached_gemfile_md5_path)
         end
 
@@ -69,14 +70,14 @@ module Capistrano
         #
         # @return [String]
         def local_cache_path
-          File.join(tmp_path, 'bundle_cache')
+          File.join(Dir.pwd, 'vendor', 'cache')
         end
 
         # MD5 sum of Gemfile.lock to deploy
         #
         # @return [String]
         def gemfile_md5
-          @_gemfile_md5 ||= Digest::MD5.file(File.join(repo_path, 'Gemfile.lock')).hexdigest rescue nil
+          @_gemfile_md5 ||= Digest::MD5.file(File.join(Dir.pwd, 'Gemfile.lock')).hexdigest rescue nil
         end
 
         # MD5 sum of Gemfile.lock for local gem cache
@@ -90,7 +91,7 @@ module Capistrano
         #
         # @return [String]
         def cached_gemfile_md5_path
-          File.join(tmp_path, 'git_copy_bundle_gemfile_lock.md5')
+          File.join(Dir.pwd, '.capistrano-git-copy-bundle-gemfile-lock.md5')
         end
 
         # Checks if Gemfile.lock has changed since last deploy
@@ -105,6 +106,28 @@ module Capistrano
         # @return [Array]
         def local_gems
           %x(ls #{local_cache_path}).split(/\s+/)
+        end
+
+        private
+
+        def fetch(*args)
+          @context.fetch(*args)
+        end
+
+        def execute(*args)
+          @context.execute(*args)
+        end
+
+        def capture(*args)
+          @context.capture(*args)
+        end
+
+        def test!(*args)
+          @context.test(*args)
+        end
+
+        def upload!(*args)
+          @context.upload!(*args)
         end
       end
     end

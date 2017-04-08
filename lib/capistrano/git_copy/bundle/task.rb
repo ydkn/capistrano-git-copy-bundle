@@ -1,1 +1,1 @@
-load File.expand_path('../tasks/bundle.cap', __FILE__)
+load File.expand_path('../tasks/bundle.rake', __FILE__)
