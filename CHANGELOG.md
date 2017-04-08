@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.2.1 (2017-04-08)
+### Fixed
+  - Removed dependency of _capistrano-git-copy_ from gemspec
+
 ## 0.2.0 (2017-04-08)
 ### Changes
   - Removed dependency of _capistrano-git-copy_
